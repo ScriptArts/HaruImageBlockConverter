@@ -1,0 +1,82 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:HaruImageBlockConverter.Style">
+    <!-- 配色 -->
+    <SolidColorBrush x:Key="BLUE1"     Color="#3493D2"/>
+    <SolidColorBrush x:Key="BLUE2"     Color="#75CBF0"/>
+    <SolidColorBrush x:Key="BLUE3"     Color="#1EB4F0"/>
+    <SolidColorBrush x:Key="BLUE4"     Color="#6A7FAC"/>
+    <SolidColorBrush x:Key="BLUE5"     Color="#D3E5FF"/>
+    <SolidColorBrush x:Key="BLUE6"     Color="#3493d2"/>
+    <SolidColorBrush x:Key="GRAY1"     Color="#39404D"/>
+    <SolidColorBrush x:Key="GRAY2"     Color="#5C626C"/>
+    <SolidColorBrush x:Key="GRAY3"     Color="#676E7B"/>
+    <SolidColorBrush x:Key="GRAY4"     Color="#8A8F9A"/>
+    <SolidColorBrush x:Key="GRAY5"     Color="#C9CDD6"/>
+    <SolidColorBrush x:Key="RED"       Color="#E37C93"/>
+    <SolidColorBrush x:Key="WHITE"     Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="LST"       Color="#F8F9FC"/>
+    <SolidColorBrush x:Key="SCR1"      Color="#758395"/>
+    <SolidColorBrush x:Key="SCR2"      Color="#ACC2DE"/>
+    <SolidColorBrush x:Key="FTR"       Color="#4F5E70"/>
+    <SolidColorBrush x:Key="BG1"       Color="#F0F2F6"/>
+    <SolidColorBrush x:Key="BG2"       Color="#DBE0EA"/>
+    <SolidColorBrush x:Key="SUB1"      Color="#5C6D81"/>
+    <SolidColorBrush x:Key="SUB2"      Color="#DCE1EA"/>
+    <SolidColorBrush x:Key="SUB3"      Color="#65778B"/>
+
+    <!-- Window -->
+    <Style x:Key="TitleBar" TargetType="Window">
+        <Setter Property="WindowChrome.WindowChrome">
+            <Setter.Value>
+                <WindowChrome CaptionHeight="20" UseAeroCaptionButtons="False"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
+    <!-- 中ラベル -->
+    <Style x:Key="NormalLabel" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="メイリオ"/>
+        <Setter Property="FontSize" Value="16"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{StaticResource SUB1}"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- ラジオボタン -->
+    <Style x:Key="RadioButtonLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="メイリオ"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Foreground" Value="{StaticResource GRAY2}"/>
+    </Style>
+
+    <ControlTemplate x:Key="RadioButtonTemplate" TargetType="{x:Type RadioButton}">
+        <BulletDecorator Background="Transparent">
+            <BulletDecorator.Bullet>
+                <Grid Width="20" Height="20">
+                    <Ellipse Fill="{StaticResource BG2}"/>
+                    <Ellipse x:Name="CheckMark" Fill="{StaticResource BLUE1}" Margin="2"/>
+                    <Ellipse x:Name="Wrapper" Fill="{StaticResource BLUE4}" Stroke="{StaticResource BLUE4}" Opacity="0"/>
+                    <Ellipse x:Name="Frame" Stroke="{StaticResource BLUE4}" StrokeThickness="1" Opacity="0"/>
+                </Grid>
+            </BulletDecorator.Bullet>
+            <ContentPresenter Grid.Column="1" VerticalAlignment="Center" Margin="2,0,0,0"/>
+        </BulletDecorator>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+                <Setter TargetName="CheckMark" Property="Visibility" Value="Hidden"/>
+            </Trigger>
+            <!-- マウスオーバー -->
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Frame" Property="Opacity" Value="0.6"/>
+            </Trigger>
+            <!-- クリック -->
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Wrapper" Property="Opacity" Value="0.6"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    
+</ResourceDictionary>
