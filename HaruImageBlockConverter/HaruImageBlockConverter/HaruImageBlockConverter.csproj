@@ -35,6 +35,15 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="OrangeNBT">
+      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.dll</HintPath>
+    </Reference>
+    <Reference Include="OrangeNBT.Data">
+      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="OrangeNBT.World">
+      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.World.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -64,23 +73,19 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Convert\BitmapAccessor.cs" />
+    <Compile Include="Convert\BlockColor.cs" />
+    <Compile Include="Convert\ImageConvert.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Parts\Common\TitleBar.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Style\Style.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Parts\Common\TitleBar.xaml.cs">
-      <DependentUpon>TitleBar.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
