@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using System.IO;
 using HaruImageBlockConverter.Convert;
 using System.Drawing;
+using OrangeNBT.NBT;
 
 namespace HaruImageBlockConverter
 {
@@ -34,11 +35,11 @@ namespace HaruImageBlockConverter
             this.LogText.DragEnter += Image_DragEnter;
             this.Drop += Image_DragDrop;
             this.LogText.Drop += Image_DragDrop;
-            
+
             if (Directory.Exists("Block"))
             {
                 string[] files = System.IO.Directory.GetFiles(@"Block", "*", System.IO.SearchOption.TopDirectoryOnly);
-                
+
                 foreach (string file in files)
                 {
                     try
@@ -57,7 +58,7 @@ namespace HaruImageBlockConverter
                             blockColors.Add(blockColor);
                         }
                     }
-                    catch(Exception)
+                    catch (Exception)
                     {
                         MessageBox.Show("カラー定義ファイルの読み込みに失敗しました\nソフトウェアを終了します。", "ハルの画像ブロック変換ソフト",
                             MessageBoxButton.OK, MessageBoxImage.Error);
@@ -73,7 +74,7 @@ namespace HaruImageBlockConverter
             }
         }
 
-        private void Image_DragEnter(object sender,DragEventArgs e)
+        private void Image_DragEnter(object sender, DragEventArgs e)
         {
             if (e.Data.GetDataPresent(DataFormats.FileDrop))
             {
@@ -89,17 +90,36 @@ namespace HaruImageBlockConverter
         {
             //ドロップされたすべてのファイル名を取得する
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
-            
-            foreach(var file in files)
-            {
-                AppendLog("ファイル変換開始：" + System.IO.Path.GetFileName(file));
 
+            foreach (var file in files)
+            {
                 try
                 {
+                    string fileName = System.IO.Path.GetFileName(file);
+                    AppendLog("ファイル変換開始：" + fileName);
+
                     using (Bitmap bitmap = new Bitmap(file))
                     {
-                        
+                        ImageConvert imageConvert = new ImageConvert(blockColors.ToArray());
+                        TagCompound compound;
+                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
+
+                        if ((bool)NBTRadioButton.IsChecked)
+                        {
+                            compound = imageConvert.ToNBT(bitmap);
+                            savefile += ".nbt";
+                        }
+                        else
+                        {
+                            compound = imageConvert.ToSchematic(bitmap);
+                            savefile += ".schematic";
+                        }
+
+                        OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
+                        AppendLog("出力ファイル:" + savefile);
                     }
+
+                    AppendLog(System.IO.Path.GetFileName(file) + "の変換が完了しました");
                 }
                 catch (Exception)
                 {

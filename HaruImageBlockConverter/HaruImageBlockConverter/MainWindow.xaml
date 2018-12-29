@@ -28,6 +28,7 @@
         <TextBlock Margin="20,8,0,8" HorizontalAlignment="Left" Text="出力方式" Grid.Row="1" Grid.Column="0" Style="{StaticResource NormalLabel}"/>
         <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,2">
             <RadioButton
+                x:Name="NBTRadioButton"
                 Template="{StaticResource RadioButtonTemplate}"
                 IsTabStop="False"
                 IsChecked="True"
@@ -37,6 +38,7 @@
                     Style="{StaticResource RadioButtonLabel}"/>
             </RadioButton>
             <RadioButton
+                x:Name="SchematicRadioButton"
                 Template="{StaticResource RadioButtonTemplate}"
                 IsTabStop="False"
                 Margin="20,0,0,0"
