@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using OrangeNBT;
+using OrangeNBT.Data.AnvilImproved;
 using OrangeNBT.Data.Format;
 using OrangeNBT.NBT;
 
@@ -15,31 +16,41 @@ namespace HaruImageBlockConverter.Convert
     {
         private readonly BlockColor[] blockColors;
 
+        // 誤差拡散：Floyd-Steinberg
+        private readonly int[] DitherX = { 1, -1, 0, 1 };
+        private readonly int[] DitherY = { 0, 1, 1, 1 };
+        private readonly double[] DitherErr = { 7d / 16d, 3d / 16d, 5d / 16d, 1d / 16d };
+
         public ImageConvert(BlockColor[] blockColors)
         {
             this.blockColors = blockColors;
         }
 
+
+        /// <summary>
+        /// BitmapをSchematicに変換
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns></returns>
         public TagCompound ToSchematic(Bitmap bitmap)
         {
             var schematic = new Schematic(bitmap.Width, 1, bitmap.Height);
+            var result = Convert(bitmap);
 
-            var ditheringBitmap = FloydSteinberg(bitmap);
-
-            using (BitmapAccessor accessor = new BitmapAccessor(bitmap))
+            for (var x = 0; x < bitmap.Width; x++)
             {
-                for (int x = 0; x < accessor.Width; x++)
+                for (var y = 0; y < bitmap.Height; y++)
                 {
-                    for (int y = 0; y < accessor.Height; y++)
+                    var blockColor = result[x, y];
+
+                    try
                     {
-
-                        Color color = accessor.GetPixel(x, y);
-
-                        BlockColor blockColor = RGBToBlockColor(color);
-
-                        OrangeNBT.Data.IBlock block = OrangeNBT.Data.AnvilImproved.AnvilImprovedDataProvider.Instance.GetBlock("minecraft:" + blockColor.BlockName);
-
+                        var block = AnvilImprovedDataProvider.Instance.GetBlock("minecraft:" + blockColor.BlockName);
                         schematic.SetBlock(x, 0, y, block.DefaultBlockSet);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(blockColor.BlockName);
                     }
                 }
             }
@@ -47,226 +58,127 @@ namespace HaruImageBlockConverter.Convert
             return schematic.BuildTag();
         }
 
+
+        /// <summary>
+        /// BitmapをNBT変換
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <returns></returns>
         public TagCompound ToNBT(Bitmap bitmap)
         {
             var structure = new Structure(bitmap.Width, 1, bitmap.Height);
+            var result = Convert(bitmap);
 
-            var ditheringBitmap = FloydSteinberg(bitmap);
-
-            using (BitmapAccessor accessor = new BitmapAccessor(bitmap))
+            for (var x = 0; x < bitmap.Width; x++)
             {
-                for (int x = 0; x < accessor.Width; x++)
+                for (var y = 0; y < bitmap.Height; y++)
                 {
-                    for (int y = 0; y < accessor.Height; y++)
+                    var blockColor = result[x, y];
+
+                    try
                     {
-
-                        Color color = accessor.GetPixel(x, y);
-
-                        BlockColor blockColor = RGBToBlockColor(color);
-
-                        try
-                        {
-                            OrangeNBT.Data.IBlock block = OrangeNBT.Data.AnvilImproved.AnvilImprovedDataProvider.Instance.GetBlock("minecraft:" + blockColor.BlockName);
-
-                            structure.SetBlock(x, 0, y, block.DefaultBlockSet);
-                        }
-                        catch(Exception ex)
-                        {
-                            MessageBox.Show(blockColor.BlockName);
-                        }
-                        
+                        var block = AnvilImprovedDataProvider.Instance.GetBlock("minecraft:" + blockColor.BlockName);
+                        structure.SetBlock(x, 0, y, block.DefaultBlockSet);
                     }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(blockColor.BlockName);
+                    }
+
                 }
             }
 
             return structure.BuildTag();
         }
 
-        #region FloydSteinberg
-
-
         /// <summary>
-        /// FloydSteinberg誤差拡散を行う
+        /// 誤差拡散しつつ減色
         /// </summary>
         /// <param name="bmp"></param>
-        /// <returns></returns>
-        private Bitmap FloydSteinberg(Bitmap bmp)
+        /// <returns>変換結果</returns>
+        private BlockColor[,] Convert(Bitmap bmp)
         {
-            using (BitmapAccessor accessor = new BitmapAccessor(bmp))
+            using (var accessor = new BitmapAccessor(bmp))
             {
-                for (int y = 0; y < bmp.Height; y++)
+                var w = bmp.Width;
+                var h = bmp.Height;
+
+                var result = new BlockColor[w, h];
+
+                int[][] ditherData = { new int[w * 3], new int[w * 3] };
+
+                for (var y = 0; y < h; y++)
                 {
-                    for (int x = 0; x < bmp.Width; x++)
+                    // Recycle
+                    var shift = ditherData[0];
+                    Array.Copy(ditherData, 1, ditherData, 0, ditherData.Length - 1);
+                    for (var i = 0; i < shift.Length; i++)
                     {
+                        shift[i] = 0;
+                    }
+                    ditherData[ditherData.Length - 1] = shift;
 
-                        Color bitmapRGB = accessor.GetPixel(x, y);
-                        var block = RGBToBlockColor(bitmapRGB);
+                    for (var x = 0; x < w; x++)
+                    {
+                        var color = accessor.GetPixel(x, y);
 
-                        var blockRGB = Color.FromArgb(block.R, block.G, block.B);
+                        var r = Math.Max(0, Math.Min(255, color.R + ditherData[0][x * 3 + 0]));
+                        var g = Math.Max(0, Math.Min(255, color.G + ditherData[0][x * 3 + 1]));
+                        var b = Math.Max(0, Math.Min(255, color.B + ditherData[0][x * 3 + 2]));
 
-                        if (x < accessor.Width - 1)
-                        {
-                            var nextPixel = accessor.GetPixel(x + 1, y);
-                            var d = (decimal)7 / (decimal)16;
-                            accessor.SetPixel(x + 1, y, GetDitheringColor(d, nextPixel, bitmapRGB, blockRGB));
-                        }
-                        /*
-                        if (x < accessor.Width - 2)
-                        {
-                            var nextPixel = accessor.GetPixel(x + 2, y);
-                            var d = (decimal)4 / (decimal)42;
-                            accessor.SetPixel(x + 2, y, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-                        */
-                        /*
-                        if (x > 1 && y < accessor.Height - 1)
-                        {
-                            var nextPixel = accessor.GetPixel(x - 2, y + 1);
-                            var d = (decimal)2 / (decimal)42;
-                            accessor.SetPixel(x - 2, y + 1, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-                        */
+                        var nearestMatch = FindNearest(r, g, b);
+                        result[x, y] = nearestMatch;
 
-                        if (x > 0 && y < accessor.Height - 1)
-                        {
-                            var nextPixel = accessor.GetPixel(x - 1, y + 1);
-                            var d = (decimal)3 / (decimal)16;
-                            accessor.SetPixel(x - 1, y + 1, GetDitheringColor(d, nextPixel, bitmapRGB, blockRGB));
-                        }
+                        var rDiff = r - nearestMatch.R;
+                        var gDiff = g - nearestMatch.G;
+                        var bDiff = b - nearestMatch.B;
 
-                        if (y < accessor.Height - 1)
+                        for (var k = 0; k < DitherX.Length; k++)
                         {
-                            var nextPixel = accessor.GetPixel(x, y + 1);
-                            var d = (decimal)5 / (decimal)42;
-                            accessor.SetPixel(x, y + 1, GetDitheringColor(d, nextPixel, bitmapRGB, blockRGB));
-                        }
+                            var tmpX = DitherX[k] + x;
+                            var tmpY = DitherY[k];
 
-                        if (x < accessor.Width - 1 && y < accessor.Height - 1)
-                        {
-                            var nextPixel = accessor.GetPixel(x + 1, y + 1);
-                            var d = (decimal)1 / (decimal)42;
-                            accessor.SetPixel(x + 1, y + 1, GetDitheringColor(d, nextPixel, bitmapRGB, blockRGB));
+                            if ((tmpY < h) && (tmpX < w) && (tmpX > 0))
+                            {
+                                ditherData[tmpY][tmpX * 3 + 0] += (int)Math.Floor(DitherErr[k] * rDiff);
+                                ditherData[tmpY][tmpX * 3 + 1] += (int)Math.Floor(DitherErr[k] * gDiff);
+                                ditherData[tmpY][tmpX * 3 + 2] += (int)Math.Floor(DitherErr[k] * bDiff);
+                            }
                         }
-
-                        /*
-                        if (x < accessor.Width - 2 && y < accessor.Height - 1)
-                        {
-                            var nextPixel = accessor.GetPixel(x + 2, y + 1);
-                            var d = (decimal)2 / (decimal)42;
-                            accessor.SetPixel(x + 2, y + 1, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-                        */
-                        /*
-                        if (x > 1 && y < accessor.Height - 2)
-                        {
-                            var nextPixel = accessor.GetPixel(x - 2, y + 2);
-                            var d = (decimal)1 / (decimal)42;
-                            accessor.SetPixel(x - 2, y + 2, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-
-                        //
-                        if (x > 0 && y < accessor.Height - 2)
-                        {
-                            var nextPixel = accessor.GetPixel(x - 1, y + 1);
-                            var d = (decimal)2 / (decimal)42;
-                            accessor.SetPixel(x - 1, y + 2, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-
-                        //
-                        if (y < accessor.Height - 2)
-                        {
-                            var nextPixel = accessor.GetPixel(x, y + 2);
-                            var d = (decimal)4 / (decimal)42;
-                            accessor.SetPixel(x, y + 2, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-
-                        //
-                        if (x < accessor.Width - 2 && y < accessor.Height - 2)
-                        {
-                            var nextPixel = accessor.GetPixel(x + 1, y + 2);
-                            var d = (decimal)2 / (decimal)42;
-                            accessor.SetPixel(x + 1, y + 2, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-
-                        if (x < accessor.Width - 2 && y < accessor.Height - 2)
-                        {
-                            var nextPixel = accessor.GetPixel(x + 2, y + 2);
-                            var d = (decimal)1 / (decimal)42;
-                            accessor.SetPixel(x + 2, y + 2, GetDitheringColor(d, nextPixel, pc, bc));
-                        }
-                        */
                     }
                 }
+
+                return result;
             }
-            return bmp;
         }
 
         /// <summary>
-        /// 誤差拡散
+        /// 最も近い色を持つ BlockColor を返す
         /// </summary>
-        /// <param name="d">誤差</param>
-        /// <param name="nextPixel">次のピクセルの色</param>
-        /// <param name="pictureColor">画像の色</param>
-        /// <param name="blockColor"></param>
-        /// <returns></returns>
-        private Color GetDitheringColor(decimal d, Color nextPixel, Color pictureColor, Color blockColor)
+        /// <param name="r">R</param>
+        /// <param name="g">G</param>
+        /// <param name="b">B</param>
+        /// <returns>BlockColor</returns>
+        private BlockColor FindNearest(int r, int g, int b)
         {
-            int gosaR = pictureColor.R - blockColor.R;
-            int gosaG = pictureColor.G - blockColor.G;
-            int gosaB = pictureColor.B - blockColor.B;
-            int r = Math.Max(0, Math.Min(255, (int)Math.Floor(nextPixel.R + (gosaR * d))));
-            int g = Math.Max(0, Math.Min(255, (int)Math.Floor(nextPixel.G + (gosaG * d))));
-            int b = Math.Max(0, Math.Min(255, (int)Math.Floor(nextPixel.B + (gosaB * d))));
+            var bestDiff = double.MaxValue;
+            var bestMatch = new BlockColor();
 
-            return Color.FromArgb(r, g, b);
-        }
-
-        #endregion FloydSteinberg
-
-
-
-        /// <summary>
-        /// 色から近似色のブロックを取得する
-        /// </summary>
-        /// <param name="color"></param>
-        /// <returns></returns>
-        private BlockColor RGBToBlockColor(Color color)
-        {
-            double distance = double.MaxValue;
-            var ret = new BlockColor();
-
-            foreach (BlockColor block in blockColors)
+            double diff;
+            foreach (var block in blockColors)
             {
-                double n = GetApproximate(color, block);
+                var rDiff = block.R - r;
+                var gDiff = block.G - g;
+                var bDiff = block.B - b;
 
-                if (distance >= n)
+                if ((diff = Math.Sqrt(rDiff * rDiff + gDiff * gDiff + bDiff * bDiff)) < bestDiff)
                 {
-                    distance = n;
-                    ret = block;
+                    bestDiff = diff;
+                    bestMatch = block;
                 }
-
             }
-            return ret;
-        }
 
-        /// <summary>
-        /// 色から近似色を取得する
-        /// </summary>
-        /// <param name="color"></param>
-        /// <param name="block"></param>
-        /// <returns></returns>
-        private double GetApproximate(Color color, BlockColor blockColor)
-        {
-            double r = color.R - blockColor.R;
-            double g = color.G - blockColor.G;
-            double b = color.B - blockColor.B;
-            double ret = Math.Sqrt(r * r + g * g + b * b);
-
-            if (ret < 0)
-            {
-                ret = (-ret);
-            }
-            return ret;
+            return bestMatch;
         }
     }
 }
