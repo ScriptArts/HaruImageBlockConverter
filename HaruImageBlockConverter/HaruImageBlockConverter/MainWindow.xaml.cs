@@ -16,6 +16,7 @@ using System.IO;
 using HaruImageBlockConverter.Convert;
 using System.Drawing;
 using OrangeNBT.NBT;
+using Microsoft.Win32;
 
 namespace HaruImageBlockConverter
 {
@@ -26,15 +27,13 @@ namespace HaruImageBlockConverter
     {
         private List<BlockColor> blockColors = new List<BlockColor>();
 
-
         public MainWindow()
         {
             InitializeComponent();
 
+
             this.DragEnter += Image_DragEnter;
-            this.LogText.DragEnter += Image_DragEnter;
             this.Drop += Image_DragDrop;
-            this.LogText.Drop += Image_DragDrop;
 
             if (Directory.Exists("Block"))
             {
@@ -71,6 +70,26 @@ namespace HaruImageBlockConverter
                 MessageBox.Show("カラー定義フォルダが見つかりませんでした\nソフトウェアを終了します。", "ハルの画像ブロック変換ソフト",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
+            }
+        }
+
+        /// <summary>
+        /// 画像を選択ボタンクリックイベント
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            // ダイアログのインスタンスを生成
+            var dialog = new OpenFileDialog();
+
+                // ファイルの種類を設定
+            dialog.Filter = "テキストファイル (*.txt)|*.txt|全てのファイル (*.*)|*.*";
+
+            // ダイアログを表示する
+            if (dialog.ShowDialog() == true)
+            {
+                FileNameTextBox.Text = dialog.FileName;
             }
         }
 
@@ -134,7 +153,8 @@ namespace HaruImageBlockConverter
         /// <param name="msg">ログ内容</param>
         private void AppendLog(string msg)
         {
-            this.LogText.AppendText(msg + Environment.NewLine);
         }
+
+        
     }
 }

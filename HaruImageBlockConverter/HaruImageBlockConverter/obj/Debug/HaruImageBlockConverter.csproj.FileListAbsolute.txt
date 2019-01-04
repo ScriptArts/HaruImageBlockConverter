@@ -25,7 +25,6 @@ C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConvert
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter_MarkupCompile.cache
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter_MarkupCompile.lref
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\MainWindow.baml
-C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\Style\Style.baml
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter.g.resources
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter.Properties.Resources.resources
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter.csproj.GenerateResource.cache
@@ -134,3 +133,9 @@ C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConvert
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter.csprojAssemblyReference.cache
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter.exe.config
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\HaruImageBlockConverter.csproj.CopyComplete
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignColors.dll
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignThemes.Wpf.dll
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignColors.pdb
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignThemes.Wpf.pdb
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignThemes.Wpf.xml
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\App.baml

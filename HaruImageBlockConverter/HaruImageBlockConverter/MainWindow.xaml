@@ -6,65 +6,60 @@
         xmlns:local="clr-namespace:HaruImageBlockConverter"
         mc:Ignorable="d"
         AllowDrop="True"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        TextElement.Foreground="{DynamicResource MaterialDesignBody}"
+        Background="{DynamicResource MaterialDesignPaper}"
         Title="ハルの画像ブロック変換ソフト" Height="450" Width="800">
 
-    <Window.Resources>
-        <ResourceDictionary Source="Style/Style.xaml"/>
-    </Window.Resources>
 
-    <Grid>
+    <Grid Margin="20,10,20,10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"/>
             <RowDefinition Height="40"/>
-            <RowDefinition Height="30"/>
+            <RowDefinition Height="40"/>
             <RowDefinition />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="120"/>
+            <ColumnDefinition Width="100"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
+        
+        <!--画像ファイル選択-->
+        <TextBlock Grid.Row="0" Grid.Column="0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Center" Text="画像ファイル" />
+        <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="1" VerticalAlignment="Center">
+            <Button
+                DockPanel.Dock="Right"
+                Style="{StaticResource MaterialDesignRaisedDarkButton}"
+                Width="100"
+                Content="画像を選択" Click="Button_Click">
+            </Button>
+            <TextBox
+                x:Name="FileNameTextBox"
+                VerticalAlignment="Stretch"
+                Margin="0,0,10,0"
+                materialDesign:HintAssist.Hint="画像ファイルパス"/>
+        </DockPanel>
 
         <!--出力方式-->
-        <TextBlock Margin="20,8,0,8" HorizontalAlignment="Left" Text="出力方式" Grid.Row="1" Grid.Column="0" Style="{StaticResource NormalLabel}"/>
-        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" Grid.ColumnSpan="2" Margin="0,2">
+        <TextBlock Grid.Row="1" Grid.Column="0" FontSize="16" HorizontalAlignment="Left" VerticalAlignment="Center" Text="出力方式" />
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch">
             <RadioButton
                 x:Name="NBTRadioButton"
-                Template="{StaticResource RadioButtonTemplate}"
-                IsTabStop="False"
-                IsChecked="True"
-                FocusVisualStyle="{x:Null}">
-                <Label
-                    Content="NBT"
-                    Style="{StaticResource RadioButtonLabel}"/>
+                Content="NBT"
+                FontSize="16"
+                VerticalAlignment="Stretch"
+                VerticalContentAlignment="Center"
+                Style="{StaticResource MaterialDesignRadioButton}">
             </RadioButton>
             <RadioButton
                 x:Name="SchematicRadioButton"
-                Template="{StaticResource RadioButtonTemplate}"
-                IsTabStop="False"
+                Content="Schematic"
                 Margin="20,0,0,0"
-                FocusVisualStyle="{x:Null}">
-                <Label
-                    Content="Schematic"
-                    Style="{StaticResource RadioButtonLabel}"/>
+                FontSize="16"
+                VerticalAlignment="Stretch"
+                VerticalContentAlignment="Center"
+                Style="{StaticResource MaterialDesignRadioButton}">
             </RadioButton>
         </StackPanel>
-
-        <!--ログ-->
-        <TextBlock Margin="20,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Text="ログ" Grid.Row="2" Grid.Column="0" Style="{StaticResource NormalLabel}"/>
-        <TextBlock Margin="0,0,19,0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Text="変換したい画像ファイルをドラッグ&amp;ドロップしてください" Grid.Row="2" Grid.Column="1" Style="{StaticResource NormalLabel}"/>
-        <TextBox
-            x:Name="LogText"
-            Margin="20,0,20,10" 
-            Grid.Row="3" Grid.Column="0" 
-            Grid.ColumnSpan="2" 
-            HorizontalAlignment="Stretch" 
-            VerticalAlignment="Stretch"
-            TextWrapping="Wrap"
-            AcceptsReturn="True"
-            FontFamily="メイリオ"
-            IsReadOnly="True"
-            AllowDrop="True"
-            FontSize="12">
-        </TextBox>
+        
     </Grid>
 </Window>

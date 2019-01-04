@@ -80,7 +80,7 @@ namespace HaruImageBlockConverter.Convert
                         var block = AnvilImprovedDataProvider.Instance.GetBlock("minecraft:" + blockColor.BlockName);
                         structure.SetBlock(x, 0, y, block.DefaultBlockSet);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                         MessageBox.Show(blockColor.BlockName);
                     }
