@@ -92,6 +92,7 @@ namespace HaruImageBlockConverter
             if (dialog.ShowDialog() == true)
             {
                 convertFile.FileName = dialog.FileName;
+                ConvertStart();
             }
         }
 
@@ -107,74 +108,74 @@ namespace HaruImageBlockConverter
             }
         }
 
-        private async void Image_DragDrop(object sender, DragEventArgs e)
+        private void Image_DragDrop(object sender, DragEventArgs e)
         {
             //ドロップされたすべてのファイル名を取得する
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
             foreach (var file in files)
             {
-                try
-                {
-                    string fileName = System.IO.Path.GetFileName(file);
-
-                    
-
-                    using (Bitmap bitmap = new Bitmap(file))
-                    {
-                        ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
-                        TagCompound compound = new TagCompound();
-                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
-                        bool convertType = (bool)NBTRadioButton.IsChecked;
-                        convertFile.Total = bitmap.Height * 2;
-                        convertFile.Complete = 0;
-                        convertFile.ProgressMsg = "変換中";
-
-                        ProgressBorder.Visibility = Visibility.Visible;
-                        ProgressButton.Visibility = Visibility.Visible;
-
-                        // 非同期処理
-                        var task = Task.Run(() =>
-                        {
-                            if (convertType)
-                            {
-                                compound = imageConvert.ToNBT(bitmap);
-                                savefile += ".nbt";
-                            }
-                            else
-                            {
-                                compound = imageConvert.ToSchematic(bitmap);
-                                savefile += ".schematic";
-                            }
-
-                            convertFile.ProgressMsg = "出力中";
-
-                            OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
-                        });
-
-                        await task;
-                    }
-                }
-                catch (Exception)
-                {
-                    AppendLog("非対応形式の為処理をスキップします。");
-                }
-                finally
-                {
-                    ProgressBorder.Visibility = Visibility.Collapsed;
-                    ProgressButton.Visibility = Visibility.Collapsed;
-                }
+                convertFile.FileName = file;
+                ConvertStart();
             }
         }
 
         /// <summary>
-        /// 1行ログを出力
+        /// ファイル変換を開始する
         /// </summary>
-        /// <param name="msg">ログ内容</param>
-        private void AppendLog(string msg)
+        /// <param name="file"></param>
+        private async void ConvertStart()
         {
+            try
+            {
+                string file = convertFile.FileName;
+                string fileName = System.IO.Path.GetFileName(file);
+                
+                using (Bitmap bitmap = new Bitmap(file))
+                {
+                    ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
+                    TagCompound compound = new TagCompound();
+                    string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
+                    bool convertType = (bool)NBTRadioButton.IsChecked;
+                    convertFile.Total = bitmap.Height * 2;
+                    convertFile.Complete = 0;
+                    convertFile.ProgressMsg = "変換中";
+
+                    ProgressBorder.Visibility = Visibility.Visible;
+                    ProgressButton.Visibility = Visibility.Visible;
+
+                    // 非同期処理
+                    var task = Task.Run(() =>
+                    {
+                        if (convertType)
+                        {
+                            compound = imageConvert.ToNBT(bitmap);
+                            savefile += ".nbt";
+                        }
+                        else
+                        {
+                            compound = imageConvert.ToSchematic(bitmap);
+                            savefile += ".schematic";
+                        }
+
+                        convertFile.ProgressMsg = "出力中";
+
+                        OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
+                    });
+
+                    await task;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(@"変換に失敗しました\" + ex.Message, "ハルの画像変換ソフト",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            finally
+            {
+                ProgressBorder.Visibility = Visibility.Collapsed;
+                ProgressButton.Visibility = Visibility.Collapsed;
+            }
         }
-
-
     }
 }

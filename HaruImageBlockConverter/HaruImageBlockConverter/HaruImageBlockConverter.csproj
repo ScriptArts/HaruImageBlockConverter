@@ -41,14 +41,17 @@
     <Reference Include="MaterialDesignThemes.Wpf, Version=2.5.0.1205, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignThemes.2.5.0.1205\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
-    <Reference Include="OrangeNBT">
-      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.dll</HintPath>
+    <Reference Include="OrangeNBT, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\ownCloud\自作ソフト\ライブラリ\OrangeNBT.dll</HintPath>
     </Reference>
-    <Reference Include="OrangeNBT.Data">
-      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.Data.dll</HintPath>
+    <Reference Include="OrangeNBT.Data, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\ownCloud\自作ソフト\ライブラリ\OrangeNBT.Data.dll</HintPath>
     </Reference>
-    <Reference Include="OrangeNBT.World">
-      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.World.dll</HintPath>
+    <Reference Include="OrangeNBT.World, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\ownCloud\自作ソフト\ライブラリ\OrangeNBT.World.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
