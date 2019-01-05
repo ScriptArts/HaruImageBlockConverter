@@ -15,14 +15,16 @@ namespace HaruImageBlockConverter.Convert
     internal class ImageConvert
     {
         private readonly BlockColor[] blockColors;
+        private ProgressData convertFile;
 
         // 誤差拡散：Floyd-Steinberg
         private readonly int[] DitherX = { 1, -1, 0, 1 };
         private readonly int[] DitherY = { 0, 1, 1, 1 };
         private readonly double[] DitherErr = { 7d / 16d, 3d / 16d, 5d / 16d, 1d / 16d };
 
-        public ImageConvert(BlockColor[] blockColors)
+        public ImageConvert(ProgressData convertFile, BlockColor[] blockColors)
         {
+            this.convertFile = convertFile;
             this.blockColors = blockColors;
         }
 
@@ -37,9 +39,9 @@ namespace HaruImageBlockConverter.Convert
             var schematic = new Schematic(bitmap.Width, 1, bitmap.Height);
             var result = Convert(bitmap);
 
-            for (var x = 0; x < bitmap.Width; x++)
+            for (var y = 0; y < bitmap.Height; y++)
             {
-                for (var y = 0; y < bitmap.Height; y++)
+                for (var x = 0; x < bitmap.Width; x++)
                 {
                     var blockColor = result[x, y];
 
@@ -53,6 +55,7 @@ namespace HaruImageBlockConverter.Convert
                         MessageBox.Show(blockColor.BlockName);
                     }
                 }
+                convertFile.Complete++;
             }
 
             return schematic.BuildTag();
@@ -69,9 +72,9 @@ namespace HaruImageBlockConverter.Convert
             var structure = new Structure(bitmap.Width, 1, bitmap.Height);
             var result = Convert(bitmap);
 
-            for (var x = 0; x < bitmap.Width; x++)
+            for (var y = 0; y < bitmap.Height; y++)
             {
-                for (var y = 0; y < bitmap.Height; y++)
+                for (var x = 0; x < bitmap.Width; x++)
                 {
                     var blockColor = result[x, y];
 
@@ -84,8 +87,8 @@ namespace HaruImageBlockConverter.Convert
                     {
                         MessageBox.Show(blockColor.BlockName);
                     }
-
                 }
+                convertFile.Complete++;
             }
 
             return structure.BuildTag();
@@ -146,6 +149,9 @@ namespace HaruImageBlockConverter.Convert
                             }
                         }
                     }
+
+
+                    convertFile.Complete++;
                 }
 
                 return result;

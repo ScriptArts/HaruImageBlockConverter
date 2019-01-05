@@ -79,9 +79,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="await.cs" />
     <Compile Include="Convert\BitmapAccessor.cs" />
     <Compile Include="Convert\BlockColor.cs" />
-    <Compile Include="Convert\ConvertFile.cs" />
+    <Compile Include="Convert\ProgressData.cs" />
     <Compile Include="Convert\ImageConvert.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>

@@ -2,14 +2,14 @@
 
 namespace HaruImageBlockConverter.Convert
 {
-    class ConvertFile : INotifyPropertyChanged
+    class ProgressData : INotifyPropertyChanged
     {
         
         private string _fileName { set; get; }
 
+        private string _progressMsg { set; get; }
         
         private int _total { set; get; }
-
         
         private int _complete { set; get; }
 
@@ -25,7 +25,26 @@ namespace HaruImageBlockConverter.Convert
             set
             {
                 this._fileName = value;
-                this.OnPropertyChanged(nameof(_fileName));
+                this.OnPropertyChanged(nameof(FileName));
+
+                return;
+            }
+        }
+
+        /// <summary>
+        /// 処理中メッセージ
+        /// </summary>
+        /// <returns></returns>
+        public string ProgressMsg
+        {
+            get
+            {
+                return this._progressMsg;
+            }
+            set
+            {
+                this._progressMsg = value;
+                this.OnPropertyChanged(nameof(ProgressMsg));
 
                 return;
             }
@@ -43,7 +62,7 @@ namespace HaruImageBlockConverter.Convert
             set
             {
                 this._total = value;
-                this.OnPropertyChanged(nameof(_total));
+                this.OnPropertyChanged(nameof(Total));
 
                 return;
             }
@@ -61,7 +80,7 @@ namespace HaruImageBlockConverter.Convert
             set
             {
                 this._complete = value;
-                this.OnPropertyChanged(nameof(_complete));
+                this.OnPropertyChanged(nameof(Complete));
 
                 return;
             }

@@ -25,7 +25,7 @@ namespace HaruImageBlockConverter
     /// </summary>
     public partial class MainWindow : Window
     {
-        private ConvertFile convertFile = new ConvertFile();
+        private ProgressData convertFile = new ProgressData();
 
         private List<BlockColor> blockColors = new List<BlockColor>();
 
@@ -85,7 +85,7 @@ namespace HaruImageBlockConverter
             // ダイアログのインスタンスを生成
             var dialog = new OpenFileDialog();
 
-                // ファイルの種類を設定
+            // ファイルの種類を設定
             dialog.Filter = "全てのファイル (*.*)|*.*";
 
             // ダイアログを表示する
@@ -107,7 +107,7 @@ namespace HaruImageBlockConverter
             }
         }
 
-        private void Image_DragDrop(object sender, DragEventArgs e)
+        private async void Image_DragDrop(object sender, DragEventArgs e)
         {
             //ドロップされたすべてのファイル名を取得する
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
@@ -117,34 +117,52 @@ namespace HaruImageBlockConverter
                 try
                 {
                     string fileName = System.IO.Path.GetFileName(file);
-                    AppendLog("ファイル変換開始：" + fileName);
+
+                    
 
                     using (Bitmap bitmap = new Bitmap(file))
                     {
-                        ImageConvert imageConvert = new ImageConvert(blockColors.ToArray());
-                        TagCompound compound;
+                        ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
+                        TagCompound compound = new TagCompound();
                         string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
+                        bool convertType = (bool)NBTRadioButton.IsChecked;
+                        convertFile.Total = bitmap.Height * 2;
+                        convertFile.Complete = 0;
+                        convertFile.ProgressMsg = "変換中";
 
-                        if ((bool)NBTRadioButton.IsChecked)
-                        {
-                            compound = imageConvert.ToNBT(bitmap);
-                            savefile += ".nbt";
-                        }
-                        else
-                        {
-                            compound = imageConvert.ToSchematic(bitmap);
-                            savefile += ".schematic";
-                        }
+                        ProgressBorder.Visibility = Visibility.Visible;
+                        ProgressButton.Visibility = Visibility.Visible;
 
-                        OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
-                        AppendLog("出力ファイル:" + savefile);
+                        // 非同期処理
+                        var task = Task.Run(() =>
+                        {
+                            if (convertType)
+                            {
+                                compound = imageConvert.ToNBT(bitmap);
+                                savefile += ".nbt";
+                            }
+                            else
+                            {
+                                compound = imageConvert.ToSchematic(bitmap);
+                                savefile += ".schematic";
+                            }
+
+                            convertFile.ProgressMsg = "出力中";
+
+                            OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
+                        });
+
+                        await task;
                     }
-
-                    AppendLog(System.IO.Path.GetFileName(file) + "の変換が完了しました");
                 }
                 catch (Exception)
                 {
                     AppendLog("非対応形式の為処理をスキップします。");
+                }
+                finally
+                {
+                    ProgressBorder.Visibility = Visibility.Collapsed;
+                    ProgressButton.Visibility = Visibility.Collapsed;
                 }
             }
         }
@@ -157,6 +175,6 @@ namespace HaruImageBlockConverter
         {
         }
 
-        
+
     }
 }

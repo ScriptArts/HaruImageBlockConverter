@@ -63,7 +63,8 @@
         </StackPanel>
         <Image Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
-        <Border 
+        <Border
+            x:Name="ProgressBorder"
             Grid.Row="0"
             Grid.RowSpan="3"
             Grid.Column="0"
@@ -72,16 +73,23 @@
             Visibility="Collapsed"/>
 
         <Button
+            x:Name="ProgressButton"
             Grid.Row="0"
             Grid.RowSpan="3"
             Grid.Column="0"
             Grid.ColumnSpan="2"
-            Style="{StaticResource MaterialDesignFloatingActionAccentButton}"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Center"
-            materialDesign:ButtonProgressAssist.IsIndicatorVisible="True"
-            materialDesign:ButtonProgressAssist.Value="50"
-            Content="処理中"
-            Visibility="Collapsed"/>
+            Width="200"
+            Command="{Binding DismissComand}"
+            Style="{StaticResource MaterialDesignRaisedButton}"
+            HorizontalAlignment="Stretch"
+            Visibility="Collapsed"
+            materialDesign:ButtonProgressAssist.Maximum="{Binding Total, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            materialDesign:ButtonProgressAssist.Value="{Binding Complete, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+            materialDesign:ButtonProgressAssist.IsIndicatorVisible="True">
+            <StackPanel
+                Orientation="Horizontal">
+                <TextBlock Text="{Binding ProgressMsg, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+        </Button>
     </Grid>
 </Window>
