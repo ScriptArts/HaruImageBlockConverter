@@ -139,3 +139,4 @@ C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConvert
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignThemes.Wpf.pdb
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\bin\Debug\MaterialDesignThemes.Wpf.xml
 C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\App.baml
+C:\Users\tatuharu\Documents\GitHub\HaruImageBlockConverter\HaruImageBlockConverter\HaruImageBlockConverter\obj\Debug\GeneratedInternalTypeHelper.g.cs

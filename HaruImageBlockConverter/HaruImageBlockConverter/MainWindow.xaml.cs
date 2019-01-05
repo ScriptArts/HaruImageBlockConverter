@@ -25,13 +25,15 @@ namespace HaruImageBlockConverter
     /// </summary>
     public partial class MainWindow : Window
     {
+        private ConvertFile convertFile = new ConvertFile();
+
         private List<BlockColor> blockColors = new List<BlockColor>();
 
         public MainWindow()
         {
             InitializeComponent();
 
-
+            this.DataContext = convertFile;
             this.DragEnter += Image_DragEnter;
             this.Drop += Image_DragDrop;
 
@@ -84,12 +86,12 @@ namespace HaruImageBlockConverter
             var dialog = new OpenFileDialog();
 
                 // ファイルの種類を設定
-            dialog.Filter = "テキストファイル (*.txt)|*.txt|全てのファイル (*.*)|*.*";
+            dialog.Filter = "全てのファイル (*.*)|*.*";
 
             // ダイアログを表示する
             if (dialog.ShowDialog() == true)
             {
-                FileNameTextBox.Text = dialog.FileName;
+                convertFile.FileName = dialog.FileName;
             }
         }
 

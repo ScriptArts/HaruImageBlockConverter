@@ -81,6 +81,7 @@
     </Compile>
     <Compile Include="Convert\BitmapAccessor.cs" />
     <Compile Include="Convert\BlockColor.cs" />
+    <Compile Include="Convert\ConvertFile.cs" />
     <Compile Include="Convert\ImageConvert.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
