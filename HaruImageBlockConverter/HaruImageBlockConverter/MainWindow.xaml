@@ -61,7 +61,7 @@
                 Style="{StaticResource MaterialDesignRadioButton}">
             </RadioButton>
         </StackPanel>
-        <Image Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Image x:Name="ImageView" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
         <Border
             x:Name="ProgressBorder"
