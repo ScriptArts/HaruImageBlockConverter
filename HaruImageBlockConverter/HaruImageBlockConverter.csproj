@@ -34,6 +34,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>ハルの座標取得ソフト.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="MaterialDesignColors, Version=1.1.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\MaterialDesignColors.1.1.3\lib\net45\MaterialDesignColors.dll</HintPath>
@@ -42,17 +45,14 @@
       <HintPath>..\packages\MaterialDesignThemes.2.5.0.1205\lib\net45\MaterialDesignThemes.Wpf.dll</HintPath>
     </Reference>
     <Reference Include="netstandard, Version=2.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51" />
-    <Reference Include="OrangeNBT, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\ownCloud\自作ソフト\ライブラリ\OrangeNBT.dll</HintPath>
+    <Reference Include="OrangeNBT">
+      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.dll</HintPath>
     </Reference>
-    <Reference Include="OrangeNBT.Data, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\ownCloud\自作ソフト\ライブラリ\OrangeNBT.Data.dll</HintPath>
+    <Reference Include="OrangeNBT.Data">
+      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.Data.dll</HintPath>
     </Reference>
-    <Reference Include="OrangeNBT.World, Version=0.1.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\ownCloud\自作ソフト\ライブラリ\OrangeNBT.World.dll</HintPath>
+    <Reference Include="OrangeNBT.World">
+      <HintPath>E:\ユーザー\tatuharu\OwnCloud\自作ソフト\ライブラリ\OrangeNBT.World.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -83,7 +83,6 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="await.cs" />
     <Compile Include="Convert\BitmapAccessor.cs" />
     <Compile Include="Convert\BlockColor.cs" />
     <Compile Include="Convert\ProgressData.cs" />
@@ -120,6 +119,8 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="ハルの座標取得ソフト.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

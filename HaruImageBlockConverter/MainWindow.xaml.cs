@@ -83,16 +83,18 @@ namespace HaruImageBlockConverter
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             // ダイアログのインスタンスを生成
-            var dialog = new OpenFileDialog();
-
-            // ファイルの種類を設定
-            dialog.Filter = "全てのファイル (*.*)|*.*";
+            var dialog = new OpenFileDialog
+            {
+                Filter = "全てのファイル (*.*)|*.*",
+                Title = "画像ファイルを選択"
+            };
 
             // ダイアログを表示する
             if (dialog.ShowDialog() == true)
             {
-                convertFile.FileName = dialog.FileName;
-                ConvertStart();
+                string[] files = new string[1];
+                files[0] = dialog.FileName;
+                ConvertStart(files);
             }
         }
 
@@ -113,76 +115,77 @@ namespace HaruImageBlockConverter
             //ドロップされたすべてのファイル名を取得する
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop, false);
 
-            foreach (var file in files)
-            {
-                convertFile.FileName = file;
-                ConvertStart();
-            }
+            ConvertStart(files);
         }
 
         /// <summary>
         /// ファイル変換を開始する
         /// </summary>
         /// <param name="file"></param>
-        private async void ConvertStart()
+        private async void ConvertStart(string[] files)
         {
-            try
+            foreach(var file in files)
             {
-                string file = convertFile.FileName;
-                string fileName = System.IO.Path.GetFileName(file);
-                
-                using (Bitmap bitmap = new Bitmap(file))
+                try
                 {
-                    ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
-                    TagCompound compound = new TagCompound();
-                    string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
-                    bool convertType = (bool)NBTRadioButton.IsChecked;
-                    convertFile.Total = bitmap.Height * 2;
-                    convertFile.Complete = 0;
+                    convertFile.FileName = file;
+                    string fileName = System.IO.Path.GetFileName(file);
 
-                    ProgressBorder.Visibility = Visibility.Visible;
-                    ConvertButton.Visibility = Visibility.Visible;
-
-                    // 非同期処理
-                    var convertTask = Task.Run(() =>
+                    using (Bitmap bitmap = new Bitmap(file))
                     {
-                        if (convertType)
+                        ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
+                        TagCompound compound = new TagCompound();
+                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
+                        bool convertType = (bool)NBTRadioButton.IsChecked;
+                        convertFile.Total = bitmap.Height * 2;
+                        convertFile.Complete = 0;
+
+                        ProgressBorder.Visibility = Visibility.Visible;
+                        ConvertButton.Visibility = Visibility.Visible;
+                        this.AllowDrop = false;
+
+                        // 非同期処理
+                        var convertTask = Task.Run(() =>
                         {
-                            compound = imageConvert.ToNBT(bitmap);
-                            savefile += ".nbt";
-                        }
-                        else
+                            if (convertType)
+                            {
+                                compound = imageConvert.ToNBT(bitmap);
+                                savefile += ".nbt";
+                            }
+                            else
+                            {
+                                compound = imageConvert.ToSchematic(bitmap);
+                                savefile += ".schematic";
+                            }
+                        });
+
+                        await convertTask;
+
+                        ConvertButton.Visibility = Visibility.Collapsed;
+                        BuildButton.Visibility = Visibility.Visible;
+
+                        var buildTask = Task.Run(() =>
                         {
-                            compound = imageConvert.ToSchematic(bitmap);
-                            savefile += ".schematic";
-                        }
-                    });
+                            OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
+                        });
 
-                    await convertTask;
+                        await buildTask;
 
-                    ConvertButton.Visibility = Visibility.Collapsed;
-                    BuildButton.Visibility = Visibility.Visible;
-
-                    var buildTask = Task.Run(() =>
-                    {
-                        OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
-                    });
-
-                    await buildTask;
-
-                    ImageView.Source = imageConvert.ConvertBitmap(bitmap);
+                        ImageView.Source = imageConvert.ConvertBitmap(bitmap);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(@"変換に失敗しました\" + ex.Message, "ハルの画像変換ソフト",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            finally
-            {
-                ProgressBorder.Visibility = Visibility.Collapsed;
-                ConvertButton.Visibility = Visibility.Collapsed;
-                BuildButton.Visibility = Visibility.Collapsed;
+                catch (Exception ex)
+                {
+                    MessageBox.Show(@"変換に失敗しました\" + ex.Message, "ハルの画像変換ソフト",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    ProgressBorder.Visibility = Visibility.Collapsed;
+                    ConvertButton.Visibility = Visibility.Collapsed;
+                    BuildButton.Visibility = Visibility.Collapsed;
+                    this.AllowDrop = true;
+                }
             }
         }
     }
