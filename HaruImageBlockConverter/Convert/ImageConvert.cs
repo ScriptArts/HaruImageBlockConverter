@@ -30,10 +30,12 @@ namespace HaruImageBlockConverter.Convert
         /// </summary>
         /// <param name="bitmap"></param>
         /// <returns></returns>
-        public TagCompound ToSchematic(Bitmap bitmap)
+        public TagCompound ToSchematic(Bitmap bitmap,bool isDither)
         {
             var schematic = new Schematic(bitmap.Width, 1, bitmap.Height);
-            var result = Convert(bitmap);
+            var result = isDither
+                ? DitherConvert(bitmap)
+                : Convert(bitmap);
 
             for (var y = 0; y < bitmap.Height; y++)
             {
@@ -63,10 +65,12 @@ namespace HaruImageBlockConverter.Convert
         /// </summary>
         /// <param name="bitmap"></param>
         /// <returns></returns>
-        public TagCompound ToNBT(Bitmap bitmap)
+        public TagCompound ToNBT(Bitmap bitmap, bool isDither)
         {
             var structure = new Structure(bitmap.Width, 1, bitmap.Height);
-            var result = Convert(bitmap);
+            var result = isDither 
+                ? DitherConvert(bitmap)
+                : Convert(bitmap);
 
             for (var y = 0; y < bitmap.Height; y++)
             {
@@ -95,7 +99,7 @@ namespace HaruImageBlockConverter.Convert
         /// </summary>
         /// <param name="bmp"></param>
         /// <returns>変換結果</returns>
-        private BlockColor[,] Convert(Bitmap bmp)
+        private BlockColor[,] DitherConvert(Bitmap bmp)
         {
             using (var accessor = new BitmapAccessor((Bitmap)bmp.Clone()))
             {
@@ -146,8 +150,48 @@ namespace HaruImageBlockConverter.Convert
                             }
                         }
                     }
+                    convertFile.Complete++;
+                }
 
+                return result;
+            }
+        }
 
+        /// <summary>
+        /// 近似色のみで減色
+        /// </summary>
+        /// <param name="bmp"></param>
+        /// <returns>変換結果</returns>
+        private BlockColor[,] Convert(Bitmap bmp)
+        {
+            using (var accessor = new BitmapAccessor((Bitmap)bmp.Clone()))
+            {
+                var w = bmp.Width;
+                var h = bmp.Height;
+
+                var result = new BlockColor[w, h];
+
+                int[][] ditherData = { new int[w * 3], new int[w * 3] };
+
+                for (var y = 0; y < h; y++)
+                {
+                    // Recycle
+                    var shift = ditherData[0];
+                    Array.Copy(ditherData, 1, ditherData, 0, ditherData.Length - 1);
+                    for (var i = 0; i < shift.Length; i++)
+                    {
+                        shift[i] = 0;
+                    }
+                    ditherData[ditherData.Length - 1] = shift;
+
+                    for (var x = 0; x < w; x++)
+                    {
+                        var color = accessor.GetPixel(x, y);
+
+                        var nearestMatch = FindNearest(color.R, color.G, color.B);
+                        result[x, y] = nearestMatch;
+                        bmp.SetPixel(x, y, Color.FromArgb(nearestMatch.R, nearestMatch.G, nearestMatch.B));
+                    }
                     convertFile.Complete++;
                 }
 

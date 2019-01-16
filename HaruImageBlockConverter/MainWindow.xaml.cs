@@ -136,7 +136,8 @@ namespace HaruImageBlockConverter
                         ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
                         TagCompound compound = new TagCompound();
                         string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
-                        bool convertType = (bool)NBTRadioButton.IsChecked;
+                        bool outputType = (bool)NBTRadioButton.IsChecked;
+                        bool isDither = (bool)FloydSteinbergRadioButton.IsChecked;
                         convertFile.Total = bitmap.Height * 2;
                         convertFile.Complete = 0;
 
@@ -147,14 +148,14 @@ namespace HaruImageBlockConverter
                         // 非同期処理
                         var convertTask = Task.Run(() =>
                         {
-                            if (convertType)
+                            if (outputType)
                             {
-                                compound = imageConvert.ToNBT(bitmap);
+                                compound = imageConvert.ToNBT(bitmap,isDither);
                                 savefile += ".nbt";
                             }
                             else
                             {
-                                compound = imageConvert.ToSchematic(bitmap);
+                                compound = imageConvert.ToSchematic(bitmap,isDither);
                                 savefile += ".schematic";
                             }
                         });
