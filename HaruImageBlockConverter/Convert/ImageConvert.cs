@@ -30,7 +30,7 @@ namespace HaruImageBlockConverter.Convert
         /// </summary>
         /// <param name="bitmap"></param>
         /// <returns></returns>
-        public TagCompound ToSchematic(Bitmap bitmap,bool isDither)
+        public TagCompound ToSchematic(Bitmap bitmap, bool isDither)
         {
             var schematic = new Schematic(bitmap.Width, 1, bitmap.Height);
             var result = isDither
@@ -68,7 +68,7 @@ namespace HaruImageBlockConverter.Convert
         public TagCompound ToNBT(Bitmap bitmap, bool isDither)
         {
             var structure = new Structure(bitmap.Width, 1, bitmap.Height);
-            var result = isDither 
+            var result = isDither
                 ? DitherConvert(bitmap)
                 : Convert(bitmap);
 
@@ -76,6 +76,11 @@ namespace HaruImageBlockConverter.Convert
             {
                 for (var x = 0; x < bitmap.Width; x++)
                 {
+                    if (bitmap.GetPixel(x,y).A == 0)
+                    {
+                        continue;
+                    }
+
                     var blockColor = result[x, y];
 
                     try
@@ -92,6 +97,60 @@ namespace HaruImageBlockConverter.Convert
             }
 
             return structure.BuildTag();
+        }
+
+        public TagCompound ToMap(Bitmap bitmap, bool isDither)
+        {
+            var result = isDither
+                ? DitherConvert(bitmap)
+                : Convert(bitmap);
+
+            var mapByte = new byte[16384];
+
+            int i = 0;
+
+            for (var y = 0; y < bitmap.Height; y++)
+            {
+                for (var x = 0; x < bitmap.Width; x++)
+                {
+                    if (bitmap.GetPixel(x, y).A == 0)
+                    {
+                        continue;
+                    }
+
+                    var blockColor = result[x, y];
+
+                    try
+                    {
+                        mapByte[i] = byte.Parse(blockColor.BlockName);
+                        i++;
+                    }
+                    catch (Exception)
+                    {
+                        MessageBox.Show(blockColor.BlockName);
+                    }
+                }
+                convertFile.Complete++;
+            }
+
+            var compound = new TagCompound()
+            {
+                new TagCompound("data")
+                {
+                    new TagByte("dimension", 0),
+                    new TagByte("scale",4),
+                    new TagByteArray("colors", mapByte),
+                    new TagList("banners"),
+                    new TagList("frames"),
+                    new TagByte("trackingPosition", 0),
+                    new TagByte("unlimitedTracking", 0),
+                    new TagInt("xCenter", 2147483647),
+                    new TagInt("zCenter", 2147483647)
+
+                }
+            };
+
+            return compound;
         }
 
         /// <summary>

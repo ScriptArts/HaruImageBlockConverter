@@ -9,7 +9,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="{DynamicResource MaterialDesignPaper}"
-        Title="ハルの画像ブロック変換ソフト" Height="450" Width="800">
+        Title="ハルの画像ブロック変換ソフト" Height="564.85" Width="800">
 
     <Grid Margin="20,10,20,10">
         <Grid.RowDefinitions>
@@ -58,6 +58,17 @@
                 Content="Schematic"
                 Margin="20,0,0,0"
                 FontSize="16"
+                Width="100"
+                VerticalAlignment="Stretch"
+                VerticalContentAlignment="Center"
+                Style="{StaticResource MaterialDesignRadioButton}">
+            </RadioButton>
+            <RadioButton
+                x:Name="MapRadioButton"
+                Content="MAP"
+                Margin="20,0,0,0"
+                FontSize="16"
+                Width="80"
                 VerticalAlignment="Stretch"
                 VerticalContentAlignment="Center"
                 Style="{StaticResource MaterialDesignRadioButton}">
@@ -83,6 +94,7 @@
                 IsChecked="True"
                 Margin="20,0,0,0"
                 FontSize="16"
+                Width="100"
                 VerticalAlignment="Stretch"
                 VerticalContentAlignment="Center"
                 Style="{StaticResource MaterialDesignRadioButton}">

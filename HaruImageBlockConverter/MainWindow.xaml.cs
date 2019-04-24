@@ -17,6 +17,7 @@ using HaruImageBlockConverter.Convert;
 using System.Drawing;
 using OrangeNBT.NBT;
 using Microsoft.Win32;
+using OrangeNBT.NBT.IO;
 
 namespace HaruImageBlockConverter
 {
@@ -29,6 +30,8 @@ namespace HaruImageBlockConverter
 
         private List<BlockColor> blockColors = new List<BlockColor>();
 
+        private List<BlockColor> mapColors = new List<BlockColor>();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -37,39 +40,55 @@ namespace HaruImageBlockConverter
             this.DragEnter += Image_DragEnter;
             this.Drop += Image_DragDrop;
 
-            if (Directory.Exists("Block"))
+            if (!(File.Exists(@"\Colors\BlockColor.csv") && File.Exists(@"\Colors\MapColor.csv")))
             {
-                string[] files = System.IO.Directory.GetFiles(@"Block", "*", System.IO.SearchOption.TopDirectoryOnly);
-
-                foreach (string file in files)
+                // ブロックRGB
+                using (var sr = new System.IO.StreamReader(@"Colors\BlockColor.csv", System.Text.Encoding.Default))
                 {
-                    try
+                    // 読み込みできる文字がなくなるまで繰り返す
+                    while (sr.Peek() >= 0)
                     {
-                        using (Bitmap bitmap = new Bitmap(file))
-                        {
-                            var color = bitmap.GetPixel(0, 0);
-                            BlockColor blockColor = new BlockColor()
-                            {
-                                R = color.R,
-                                G = color.G,
-                                B = color.B,
-                                BlockName = System.IO.Path.GetFileNameWithoutExtension(file)
-                            };
+                        string line = sr.ReadLine();
 
-                            blockColors.Add(blockColor);
-                        }
+                        string[] split = line.Split(',');
+
+                        var bc = new BlockColor()
+                        {
+                            BlockName = split[0],
+                            R = byte.Parse(split[1]),
+                            G = byte.Parse(split[2]),
+                            B = byte.Parse(split[3])
+                        };
+
+                        blockColors.Add(bc);
                     }
-                    catch (Exception)
+                }
+
+                // マップRGB
+                using (var sr = new System.IO.StreamReader(@"Colors\MapColor.csv", System.Text.Encoding.Default))
+                {
+                    // 読み込みできる文字がなくなるまで繰り返す
+                    while (sr.Peek() >= 0)
                     {
-                        MessageBox.Show("カラー定義ファイルの読み込みに失敗しました\nソフトウェアを終了します。", "ハルの画像ブロック変換ソフト",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                        Application.Current.Shutdown();
+                        string line = sr.ReadLine();
+
+                        string[] split = line.Split(',');
+
+                        var bc = new BlockColor()
+                        {
+                            BlockName = split[0],
+                            R = byte.Parse(split[1]),
+                            G = byte.Parse(split[2]),
+                            B = byte.Parse(split[3])
+                        };
+
+                        mapColors.Add(bc);
                     }
                 }
             }
             else
             {
-                MessageBox.Show("カラー定義フォルダが見つかりませんでした\nソフトウェアを終了します。", "ハルの画像ブロック変換ソフト",
+                MessageBox.Show("カラー定義ファイルが見つかりませんでした\nソフトウェアを終了します。", "ハルの画像ブロック変換ソフト",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 Application.Current.Shutdown();
             }
@@ -124,7 +143,7 @@ namespace HaruImageBlockConverter
         /// <param name="file"></param>
         private async void ConvertStart(string[] files)
         {
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 try
                 {
@@ -133,9 +152,8 @@ namespace HaruImageBlockConverter
 
                     using (Bitmap bitmap = new Bitmap(file))
                     {
-                        ImageConvert imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
-                        TagCompound compound = new TagCompound();
-                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file));
+                        ImageConvert imageConvert = null;
+                        
                         bool outputType = (bool)NBTRadioButton.IsChecked;
                         bool isDither = (bool)FloydSteinbergRadioButton.IsChecked;
                         convertFile.Total = bitmap.Height * 2;
@@ -145,18 +163,92 @@ namespace HaruImageBlockConverter
                         ConvertButton.Visibility = Visibility.Visible;
                         this.AllowDrop = false;
 
+                        byte convertType;
+
+                        if (NBTRadioButton.IsChecked.Value)
+                        {
+                            convertType = 0;
+                        }
+                        else if (SchematicRadioButton.IsChecked.Value)
+                        {
+                            convertType = 1;
+                        }
+                        else
+                        {
+                            convertType = 2;
+                        }
+
+                        var savefiles = new Dictionary<string, TagCompound>();
+
                         // 非同期処理
                         var convertTask = Task.Run(() =>
                         {
-                            if (outputType)
+                            switch (convertType)
                             {
-                                compound = imageConvert.ToNBT(bitmap,isDither);
-                                savefile += ".nbt";
-                            }
-                            else
-                            {
-                                compound = imageConvert.ToSchematic(bitmap,isDither);
-                                savefile += ".schematic";
+                                case 0:
+                                    {
+                                        imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
+                                        var compound = imageConvert.ToNBT(bitmap, isDither);
+                                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file)) + ".nbt";
+                                        savefiles.Add(savefile, compound);
+                                    }
+                                    break;
+                                case 1:
+                                    {
+                                        imageConvert = new ImageConvert(convertFile, blockColors.ToArray());
+                                        var compound = imageConvert.ToSchematic(bitmap, isDither);
+                                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), System.IO.Path.GetFileNameWithoutExtension(file)) + ".schematic";
+                                        savefiles.Add(savefile, compound);
+                                    }
+                                    break;
+                                case 2:
+                                    {
+                                        imageConvert = new ImageConvert(convertFile, mapColors.ToArray());
+                                        int count = 0;
+
+                                        for (int y = 0; y < (bitmap.Height / 128) + 1; y++)
+                                        {
+                                            for (int x = 0; x < (bitmap.Width / 128) + 1; x++)
+                                            {
+                                                int ry = 0;
+                                                int rx = 0;
+                                                int nowx = x * 128;
+                                                int nowy = y * 128;
+
+                                                if (bitmap.Height - nowy >= 128)
+                                                {
+                                                    ry = 128;
+                                                }
+                                                else
+                                                {
+                                                    ry = bitmap.Height - nowy;
+                                                    continue;
+                                                }
+
+                                                if (bitmap.Width - nowx >= 128)
+                                                {
+                                                    rx = 128;
+                                                }
+                                                else
+                                                {
+                                                    rx = bitmap.Width - nowx;
+                                                    continue;
+                                                }
+                                                if (rx >= 0 && ry >= 0)
+                                                {
+                                                    System.Drawing.Rectangle rect = new System.Drawing.Rectangle(nowx, nowy, rx, ry);
+                                                    using (Bitmap bmpNew = bitmap.Clone(rect, bitmap.PixelFormat))
+                                                    {
+                                                        var compound = imageConvert.ToMap(bmpNew, isDither);
+                                                        string savefile = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(file), "map_" + count.ToString() + ".dat");
+                                                        savefiles.Add(savefile, compound);
+                                                    }
+                                                }
+                                                count++;
+                                            }
+                                        }
+                                    }
+                                    break;
                             }
                         });
 
@@ -167,7 +259,10 @@ namespace HaruImageBlockConverter
 
                         var buildTask = Task.Run(() =>
                         {
-                            OrangeNBT.NBT.IO.NBTFile.ToFile(savefile, compound);
+                            foreach(string key in savefiles.Keys)
+                            {
+                                OrangeNBT.NBT.IO.NBTFile.ToFile(key, savefiles[key]);
+                            }
                         });
 
                         await buildTask;
