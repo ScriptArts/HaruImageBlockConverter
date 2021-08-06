@@ -222,7 +222,6 @@ namespace HaruImageBlockConverter
                                                 else
                                                 {
                                                     ry = bitmap.Height - nowy;
-                                                    continue;
                                                 }
 
                                                 if (bitmap.Width - nowx >= 128)
@@ -232,7 +231,6 @@ namespace HaruImageBlockConverter
                                                 else
                                                 {
                                                     rx = bitmap.Width - nowx;
-                                                    continue;
                                                 }
                                                 if (rx >= 0 && ry >= 0)
                                                 {

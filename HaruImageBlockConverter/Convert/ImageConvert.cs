@@ -109,26 +109,34 @@ namespace HaruImageBlockConverter.Convert
 
             int i = 0;
 
-            for (var y = 0; y < bitmap.Height; y++)
+            for (var y = 0; y < 128; y++)
             {
-                for (var x = 0; x < bitmap.Width; x++)
+                for (var x = 0; x < 128; x++)
                 {
-                    if (bitmap.GetPixel(x, y).A == 0)
+                    if (y >= bitmap.Height || x >= bitmap.Width)
                     {
-                        continue;
+                        mapByte[i] = 0;
+                    }
+                    else
+                    {
+                        if (bitmap.GetPixel(x, y).A == 0)
+                        {
+                            continue;
+                        }
+
+                        var blockColor = result[x, y];
+
+                        try
+                        {
+                            mapByte[i] = byte.Parse(blockColor.BlockName);
+                        }
+                        catch (Exception)
+                        {
+                            MessageBox.Show(blockColor.BlockName);
+                        }
                     }
 
-                    var blockColor = result[x, y];
-
-                    try
-                    {
-                        mapByte[i] = byte.Parse(blockColor.BlockName);
-                        i++;
-                    }
-                    catch (Exception)
-                    {
-                        MessageBox.Show(blockColor.BlockName);
-                    }
+                    i++;
                 }
                 convertFile.Complete++;
             }
